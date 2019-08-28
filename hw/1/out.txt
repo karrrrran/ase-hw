@@ -1,33 +1,33 @@
 Removed 0 elements 
-Cached mean: 516.41 and incremental mean: 516.41
-Cached SD: 292.42770305692915 and incremental SD: 292.42770305692915
+Cached mean: 547.63 and incremental mean: 547.63
+Cached SD: 280.51502615544484 and incremental SD: 280.51502615544484
 Removed 10 elements 
-Cached mean: 523.2111111111111 and incremental mean: 523.2111111111111
-Cached SD: 293.21466977589176 and incremental SD: 293.21466977589176
+Cached mean: 547.8111111111111 and incremental mean: 547.8111111111111
+Cached SD: 284.82724487962497 and incremental SD: 284.82724487962497
 Removed 20 elements 
-Cached mean: 519.3125 and incremental mean: 519.3125
-Cached SD: 294.79701635944417 and incremental SD: 294.79701635944417
+Cached mean: 556.2375 and incremental mean: 556.2375
+Cached SD: 287.7352089590072 and incremental SD: 287.7352089590072
 Removed 30 elements 
-Cached mean: 489.27142857142854 and incremental mean: 489.27142857142854
-Cached SD: 297.4390168371662 and incremental SD: 297.4390168371662
+Cached mean: 557.7571428571429 and incremental mean: 557.7571428571429
+Cached SD: 297.6826651841499 and incremental SD: 297.6826651841499
 Removed 40 elements 
-Cached mean: 482.06666666666666 and incremental mean: 482.06666666666666
-Cached SD: 305.2121721958303 and incremental SD: 305.2121721958303
+Cached mean: 561.6166666666667 and incremental mean: 561.6166666666667
+Cached SD: 305.65711883380914 and incremental SD: 305.65711883380914
 Removed 50 elements 
-Cached mean: 514.7 and incremental mean: 514.7
-Cached SD: 306.73828836814687 and incremental SD: 306.73828836814687
+Cached mean: 555.2 and incremental mean: 555.2
+Cached SD: 321.47713918785604 and incremental SD: 321.47713918785604
 Removed 60 elements 
-Cached mean: 520.075 and incremental mean: 520.075
-Cached SD: 308.0980852394333 and incremental SD: 308.0980852394333
+Cached mean: 545.35 and incremental mean: 545.35
+Cached SD: 327.4829844865304 and incremental SD: 327.4829844865304
 Removed 70 elements 
-Cached mean: 505.03333333333336 and incremental mean: 505.03333333333336
-Cached SD: 313.9657880915595 and incremental SD: 313.9657880915595
+Cached mean: 517.2 and incremental mean: 517.2
+Cached SD: 315.92506750155496 and incremental SD: 315.92506750155496
 Removed 80 elements 
-Cached mean: 529 and incremental mean: 529
-Cached SD: 303.3000945737094 and incremental SD: 303.3000945737094
+Cached mean: 518.15 and incremental mean: 518.15
+Cached SD: 311.1808198324231 and incremental SD: 311.1808198324231
 Removed 90 elements 
-Cached mean: 534.1 and incremental mean: 534.1
-Cached SD: 300.2263775516365 and incremental SD: 300.2263775516365
+Cached mean: 636.2 and incremental mean: 636.2
+Cached SD: 281.25069876456405 and incremental SD: 281.25069876456405
 Removed all elements
 Incremental mean :  0
 Incremental SD :  0

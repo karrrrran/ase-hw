@@ -39,6 +39,7 @@ class Some(Col):
 
 def test():
     num_instance = Num()
+    random.seed(13)
     random_number_list = random.sample(range(1, 1000), 100)
     cached_mean, cached_sd = [], []
     for i in range(len(random_number_list)):
