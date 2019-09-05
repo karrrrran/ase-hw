@@ -4,7 +4,6 @@ from hw1 import Num
 
 import re
 
-
 def compiler(x):
     "return something that can compile strings of type x"
     try: int(x); return  int 
