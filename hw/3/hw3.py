@@ -3,71 +3,125 @@ from math import log2
 import re
 import statistics
 from operator import itemgetter
-import json 
+import zipfile
+import jsonpickle
+import json
+import sys
+
+class SYMBOLS:
+    sep = ","
+    num = "$"
+    less = "<"
+    more = ">"
+    skip = "?"
+    doomed = r'([\n\t\r ]|#.*)'
+
 
 def compiler(x):
     "return something that can compile strings of type x"
-    try: int(x); return  int 
-    except:
-        try: float(x); return  float
-        except ValueError: return str
+    """return something that can compile strings"""
+    def num(z):
+        f = float(z)
+        i = int(f)
+        return i if i == f else f
+
+    for c in [SYMBOLS.num, SYMBOLS.less, SYMBOLS.more]:
+        if c in x:
+            return num
+    return str
+
 
 def string(s):
     "read lines from a string"
     for line in s.splitlines(): yield line
+
 
 def file(fname):
     "read lines from a fie"
     with open(fname) as fs:
         for line in fs: yield line
 
-def zipped(archive,fname):
+
+def zipped(archive, fname):
     "read lines from a zipped file"
     with zipfile.ZipFile(archive) as z:
         with z.open(fname) as f:
             for line in f: yield line
 
-def rows(src, sep= ",", doomed = r'([\n\t\r ]|#.*)'):
+
+def rows(src, sep=SYMBOLS.sep, doomed=SYMBOLS.doomed):
     "convert lines into lists, killing whitespace and comments"
-    for line in src:
+    linesize = None
+    for n, line in enumerate(src):
         line = line.strip()
         line = re.sub(doomed, '', line)
-        #Skip blanks
         if line:
-            yield line.split(sep)
+            line = line.split(sep)
+            # update the linesize for first time
+            if linesize is None:
+                linesize = len(line)
 
-def cells(src,valid_length):
+            # skip line if it doesn't match size
+            if len(line) == linesize:
+                yield line
+            else:
+                print("E> skipping line %s" % n)
+
+
+def cols(src):
+    "skip columns whose name contains '?'"
+    valid_cols = None
+    for cells in src:
+        if valid_cols is None:  # Do this just for the first row
+            valid_cols = [n for n, cell in enumerate(cells) if not SYMBOLS.skip in cell]
+        yield [cells[n] for n in valid_cols]
+
+
+def cells(src):
     "convert strings into their right types"
-    oks = None
-    for n,cells in enumerate(src):
-        #If total values are less than total number of column 
-        if len(cells) != valid_length:
-            print ("E> skipping line due to insufficient data points") 
-            continue
-        # Skipping '?' valued data points
-        oks = [compiler(cell) for cell in cells]
-        yield [f(cell) for f,cell in zip(oks,cells)]
+    one = next(src)
+    fs = [None] * len(one)  # [None, None, None, None]
+    yield one  # the first line
 
-def fromString(s):
-    "putting it all together"
-    all_rows = rows(string(s))
-    column_names = next(all_rows)
-    valid_columns = [x for x in range(len(column_names)) if '?' not in column_names[x]] 
-    yield (itemgetter(*valid_columns)(column_names))
-    for lst in cells(all_rows,len(column_names)):
-        yield list(itemgetter(*valid_columns)(lst))
+    def ready(n, cell):
+        if cell == SYMBOLS.skip:
+            return cell  # skip over '?'
+        fs[n] = fs[n] or compiler(one[n])  # ensure column 'n' compiles
+        return fs[n](cell)  # compile column 'n'
 
-class Row:
+    for _, cells in enumerate(src):
+        yield [ready(n, cell) for n, cell in enumerate(cells)]
+
+
+def fromString(input_str):
+    "read lines fro string"
+    for line in input_str.splitlines():
+        yield line
+
+
+class MyID:
+    oid = 0
+
+    def generate_oid(self):
+        MyID.oid += 1
+        self.oid = MyID.oid
+        return self.oid
+
+class Row(MyID):
     "Row class describing each row in data"
-    def __init__(self, cells, cooked = [], dom = 0):
+
+    def __init__(self, cells, cooked=[], dom=0):
+        self.generate_oid()
         self.cells = cells
         self.cooked = cooked
         self.dom = dom
 
 
-class Col:
+class Col(MyID):
     "Col class for each column in data"
-    def __init__(self,column_name, position,weight):
+
+    def __init__(self, column_name, position, weight):
+        self.generate_oid()
         self.column_name = column_name
         self.position = position
         self.weight = weight
@@ -75,23 +129,42 @@ class Col:
 
 class Num(Col):
     "Num class as a subclass of Col"
+
     def __init__(self, column_name, position, weight = 1):
-        super().__init__(column_name,position, weight)
-        self.mean = 0
-        self.sd = 0
+        super().__init__(column_name, position, weight)
+        self.n = 0
+        self.mu = 0     # mean
+        self.m2 = 0     # square diff
+        self.lo = 10 ** 32
+        self.hi = -1 * 10 ** 32
         self.all_values = []
-
+        self.sd = 0
+    
     def add_new_value(self, number):
+        "Add new value to the list and update the paramaters"
         self.all_values.append(number)
-        self.update_mean_and_sd()
+        if number < self.lo:
+            self.lo = number
+        if number > self.hi:
+            self.hi = number
 
-    def update_mean_and_sd(self):
-        self.mean = statistics.mean(self.all_values) if len(self.all_values) > 0 else 0
-        self.sd = statistics.stdev(self.all_values) if len(self.all_values) > 1 else 0
+        self.n += 1
+        d = number - self.mu
+        self.mu += d / self.n
+        self.m2 += d * (number - self.mu)
+        self.sd = 0 if self.n < 2 else (self.m2 / (self.n - 1 + 10 ** -32)) ** 0.5
 
     def delete_from_behind(self):
-        self.all_values.pop()
-        self.update_mean_and_sd()
+        "Remove a value from behind the list"
+        number = self.all_values.pop()
+        if self.n < 2:
+            self.n, self.mu, self.m2 = 0, 0, 0
+        else:
+            self.n -= 1
+            d = number - self.mu
+            self.mu -= d / self.n
+            self.m2 -= d * (number - self.mu)
+            self.sd = 0 if self.n < 2 else (self.m2 / (self.n - 1 + 10 ** -32)) ** 0.5
 
 
 class Sym(Col):
@@ -133,48 +206,21 @@ class Sym(Col):
 
 class Tbl:
     "Table class for driving the tables comprising of Rows and Cols"
+
     def __init__(self):
         self.rows = list() #Will hold Row objects for each row
         self.cols = list() #Will hold Num objects for each column
         self.col_info = {'goals': [], 'nums': [], 'syms': [], 'xs' : [], 'negative_weight' : []}
 
     def dump(self):
-        print ("Table Object")
-        print ("Columns--")
-        for idx,col in enumerate(self.cols):
-            print("\t --{0}".format(idx))
-            if isinstance(col,Num):
-                print ("\t \t Mean: {0}".format(round(col.mean,2)))
-                print ("\t \t SD: {0}".format(round(col.sd,2)))
-            else:
-                print ("\t \t Cnt:")
-                for key,value in col.counts_map.items():
-                    print ("\t \t \t {0}:{1}".format(key,str(value)))
-                print ("\t \t Mode: {0}".format(col.mode))
-                print ("\t \t Most: {0}".format(col.most))
-                print ("\t \t n: {0}".format(col.n))
-
-            print ("\t \t Column-name: {0}".format(col.column_name))
-        print ("\n")
-        print ("Rows--")
-        for idx,row in enumerate(self.rows):
-            print("\t --{0}".format(idx))
-            print ("\t \t cells")
-            for j,cell in enumerate(row.cells):
-                print ("\t \t {0}: {1}".format(j,cell))
-            print ("\t \t cooked: {0}".format(row.cooked))
-            print ("\t \t dom: {0}".format(row.dom))
-        print("\n")
-        print("Column Info--")
-        for key,value in self.col_info.items():
-            print("\t --{0}".format(key))
-            if value:
-                for each in value:
-                    print ("\t \t \t {0}".format(str(each)))    
+        # replaced manual printing with JSON output
+        print("Table Object")
+        # Single line output to JSON
+        print(json.dumps(json.loads(jsonpickle.encode(self)), indent=4, sort_keys=True))
             
 
     def read(self, s):
-        for idx, row in enumerate(fromString(s)):
+        for idx, row in enumerate(cells(cols(rows(fromString(s))))):
             if idx == 0:
                 # Column names are here
                 self.cols = []
