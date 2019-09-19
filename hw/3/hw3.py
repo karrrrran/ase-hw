@@ -218,30 +218,40 @@ class Tbl:
         # Single line output to JSON
         print(json.dumps(json.loads(jsonpickle.encode(self)), indent=4, sort_keys=True))
             
+    def addCol(self, column):
+        for idx,col_name in enumerate(column):
+            if bool(re.search(r"[<>$]",col_name)):
+                self.col_info['nums'].append(idx)
+                if bool(re.search(r"[<]", col_name)):
+                    # Weight should be -1 for columns with < in their name
+                    self.col_info['negative_weight'].append(idx)
+                    self.cols.append(Num(col_name,idx,-1))
+                else:
+                    self.cols.append(Num(col_name,idx))
+            else:
+                self.col_info['syms'].append(idx)
+                self.cols.append(Sym(col_name,idx))
+            if bool(re.search(r"[<>!]",col_name)):
+                self.col_info['goals'].append(idx)
 
-    def read(self, s):
-        for idx, row in enumerate(cells(cols(rows(fromString(s))))):
+    def read(self, s, type = "string"):
+        content = None
+        if type == "file":
+            content = cells(cols(rows(file(s))))
+        else:
+            content = cells(cols(rows(fromString(s))))
+        for idx, row in enumerate(content):
             if idx == 0:
                 # Column names are here
                 self.cols = []
-                for idx,col_name in enumerate(row):
-                    if bool(re.search(r"[<>$]",col_name)):
-                        self.col_info['nums'].append(idx)
-                        if bool(re.search(r"[<]", col_name)):
-                            # Weight should be -1 for columns with < in their name
-                            self.col_info['negative_weight'].append(idx)
-                            self.cols.append(Num(col_name,idx,-1))
-                        else:
-                            self.cols.append(Num(col_name,idx))
-                    else:
-                        self.col_info['syms'].append(idx)
-                        self.cols.append(Sym(col_name,idx))
-                    if bool(re.search(r"[<>!]",col_name)):
-                        self.col_info['goals'].append(idx)
+                self.addCol(row)
             else:
-                for i in range(len(self.cols)):
-                    self.cols[i].add_new_value(row[i])
-                self.rows.append(Row(row))
+                self.addRow(row)
+    
+    def addRow(self, row):
+        for i in range(len(self.cols)):
+            self.cols[i].add_new_value(row[i])
+        self.rows.append(Row(row))
 
 if __name__ == "__main__":
     
