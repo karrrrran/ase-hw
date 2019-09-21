@@ -20,7 +20,6 @@ class ZeroR:
             else:
                 if idx > self.wait:
                     #Classify the data point
-                    count = 0
                     got = self.classify() #predicted label
                     want = row[self.tbl.col_info["goals"][0]] #true label
                     self.abcd.abcd1(want,got)
