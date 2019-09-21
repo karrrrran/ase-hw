@@ -165,6 +165,13 @@ class Num(Col):
             self.mu -= d / self.n
             self.m2 -= d * (number - self.mu)
             self.sd = 0 if self.n < 2 else (self.m2 / (self.n - 1 + 10 ** -32)) ** 0.5
+    
+    def num_like(self, x):
+        "Determines how much Num class likes a symbol"
+        var = self.sd**2
+        denom = (3.14159*2*var)**0.5
+        num   =  2.71828**((-(x-self.mu)**2)/(2*var+0.0001))
+        return num/(denom + 10**-64)
 
 
 class Sym(Col):
@@ -195,6 +202,11 @@ class Sym(Col):
             probability = float(value/self.n)
             entropy -= probability*log2(probability)
         self.entropy = entropy
+
+    def sym_like(self, x, prior, m = 2):
+        "Calculates how much a symbol is liked by Sym Class"
+        freq = self.counts_map[x] x in self.counts_map else 0
+        return (freq + (m*prior)) / (self.n + m)
 
     def test(self):
         "Test Sym Class"
