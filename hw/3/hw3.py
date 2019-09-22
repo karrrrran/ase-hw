@@ -246,6 +246,10 @@ class Tbl:
             if bool(re.search(r"[<>!]",col_name)):
                 self.col_info['goals'].append(idx)
 
+
+    def tbl_header(self):
+        return [col.column_name for col in self.cols]
+
     def read(self, s, type = "string"):
         content = None
         if type == "file":

@@ -6,13 +6,14 @@ from hw3 import Tbl, cells, cols, rows, file
 from ABCD import Abcd
 
 class ZeroR:
-
+    "ZeroR classifier"
     def __init__(self):
         self.tbl = Tbl()
         self.abcd = Abcd()
         self.wait = 2
 
     def zeroRTrain(self, file_name):
+        "Train ZeroR model"
         file_contents = cells(cols(rows(file(file_name))))
         for idx, row in enumerate(file_contents):
             if idx == 0:
@@ -27,6 +28,7 @@ class ZeroR:
 
 
     def classify(self):
+        "Classify new data point"
         return self.tbl.cols[self.tbl.col_info["goals"][0]].mode
 
 
