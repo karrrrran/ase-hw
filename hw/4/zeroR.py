@@ -12,7 +12,7 @@ class ZeroR:
         self.abcd = Abcd()
         self.wait = 2
 
-    def zeroRTrain(self, file_name):
+    def train(self, file_name):
         "Train ZeroR model"
         file_contents = cells(cols(rows(file(file_name))))
         for idx, row in enumerate(file_contents):
@@ -37,10 +37,10 @@ if __name__ == "__main__":
     z1 = ZeroR()
     print ("#--- zerorok ---------------------")
     print ("weathernon")
-    z1.zeroRTrain("weathernon.csv")
+    z1.train("weathernon.csv")
     z1.abcd.abcd_report()
     print ("\n")
     z2 = ZeroR()
     print ("diabetes")
-    z2.zeroRTrain("diabetes.csv")
+    z2.train("diabetes.csv")
     z2.abcd.abcd_report()

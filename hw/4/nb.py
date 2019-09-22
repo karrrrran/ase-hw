@@ -7,7 +7,6 @@ from ABCD import Abcd
 
 class NB:
     "Naive Bayes Classifier"
-
     def __init__(self):
         self.tbl = Tbl()
         self.things = None
@@ -16,7 +15,7 @@ class NB:
         self.n = -1
     
 
-    def nbTrain(self,file_name):
+    def train(self,file_name):
         "Train the model"
         file_contents = cells(cols(rows(file(file_name))))
         for idx, row in enumerate(file_contents):

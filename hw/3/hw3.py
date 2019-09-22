@@ -205,7 +205,7 @@ class Sym(Col):
 
     def sym_like(self, x, prior, m = 2):
         "Calculates how much a symbol is liked by Sym Class"
-        freq = self.counts_map[x] x in self.counts_map else 0
+        freq = self.counts_map[x] if x in self.counts_map else 0
         return (freq + (m*prior)) / (self.n + m)
 
     def test(self):
