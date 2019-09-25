@@ -12,7 +12,7 @@ class NB:
     def __init__(self):
         self.tbl = Tbl()
         self.things = dict()
-        self.m,self.k,self.n,self.wait = 2,1,-1,3
+        self.m,self.k,self.n,self.wait = 2,1,-1,19
         self.abcd = Abcd()
 
     def train(self,file_name):
@@ -22,14 +22,13 @@ class NB:
             if idx == 0:
                 self.tbl.addCol(row)
             else:
-                self.tbl.addRow(row)
                 if idx > self.wait:
                     #Classify the data point
                     got = self.classify(row) #predicted label
                     want = row[self.tbl.col_info["goals"][0]] #true label
-                    print (got,want)
                     self.abcd.abcd1(want,got)
                 self.n += 1
+                self.tbl.addRow(row)
                 class_label = row[self.tbl.col_info["goals"][0]] 
                 self.nb_ensure_class_exists(class_label)
                 self.things[class_label].addRow(row)
@@ -67,10 +66,11 @@ class NB:
 if __name__ == "__main__":
 
     nb1 = NB()
-    # print ("#--- nbok ---------------------")
-    # print ("weathernon")
-    # nb1.train("weathernon.csv")
-    # nb1.abcd.abcd_report()
+    nb1.wait = 3
+    print ("#--- nbok ---------------------")
+    print ("weathernon")
+    nb1.train("weathernon.csv")
+    nb1.abcd.abcd_report()
     print ("\n")
     nb2 = NB()
     print ("diabetes")
