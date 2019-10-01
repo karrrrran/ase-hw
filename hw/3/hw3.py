@@ -120,24 +120,25 @@ class Row(MyID):
 class Col(MyID):
     "Col class for each column in data"
 
-    def __init__(self, column_name, position, weight):
+    def __init__(self, column_name, position, weight, rank = 0):
         self.generate_oid()
         self.column_name = column_name
         self.position = position
         self.weight = weight
+        self.rank = rank
+        self.n = 0
+        self.all_values = []
 
 
 class Num(Col):
     "Num class as a subclass of Col"
 
-    def __init__(self, column_name, position, weight = 1):
+    def __init__(self, column_name = "", position = 0, weight = 1):
         super().__init__(column_name, position, weight)
-        self.n = 0
         self.mu = 0     # mean
         self.m2 = 0     # square diff
         self.lo = 10 ** 32
         self.hi = -1 * 10 ** 32
-        self.all_values = []
         self.sd = 0
     
     def add_new_value(self, number):
@@ -157,6 +158,14 @@ class Num(Col):
     def delete_from_behind(self):
         "Remove a value from behind the list"
         number = self.all_values.pop()
+        self.delete_value(number)
+    
+    def delete_from_front(self):
+        "Remove a value from front of the list"
+        number = self.all_values.pop(0)
+        self.delete_value(number)
+
+    def delete_value(self,number):
         if self.n < 2:
             self.n, self.mu, self.m2 = 0, 0, 0
         else:
@@ -173,17 +182,21 @@ class Num(Col):
         num   =  2.71828**(-(x-self.mu)**2/(2*var+0.0001))
         return num/(denom + 10**-64)
 
+    def variety(self):
+        return self.sd
+    
+    def xpect(self, second_class):
+        total_n = self.n + second_class.n
+        return (self.sd*self.n/total_n) + (second_class.sd*second_class.n/total_n)
 
 class Sym(Col):
     "Sym class as a subclass of Col"
 
-    def __init__(self, column_name, position, weight = 1):
-        super().__init__(column_name,position, weight)
-        self.all_values = []
+    def __init__(self, column_name = "", position = 0, weight = 1):
+        super().__init__(column_name, position, weight)
         self.counts_map = defaultdict(int)
         self.mode = None
         self.most = 0
-        self.n = 0
         self.entropy = None
     
     def add_new_value(self, value):
@@ -195,6 +208,35 @@ class Sym(Col):
             self.most = self.counts_map[value]
             self.mode = value
     
+    def delete_from_behind(self):
+        "Remove a character from front"
+        char = self.all_values.pop()
+        self.delete_value(char)
+
+    def delete_from_front(self):
+        "Remove a character from front"
+        char = self.all_values.pop(0)
+        self.delete_value(char)
+    
+    def delete_value(self, char):
+        if self.n < 2:
+            self.mode, self.n,self.entropy,self.most = None, 0, None, 0
+        else:
+            self.n -= 1
+            if char == self.mode:
+                #change mode
+                self.counts_map[char] -= 1
+                temp_count = 0
+                temp_char = None
+                for each in self.counts_map:
+                    if self.counts_map[each] > temp_count:
+                        temp_count = self.counts_map[each]
+                        temp_char = each
+                self.mode = temp_char
+                self.most = temp_count
+            else:
+                self.counts_map[char] -= 1
+
     def calculate_entropy(self):
         "Calculate Entropy"
         entropy = 0
@@ -215,6 +257,19 @@ class Sym(Col):
             self.add_new_value(val)
         self.calculate_entropy()
         print (round(self.entropy,2))
+    
+    def variety(self):
+        if not self.entropy:
+            self.calculate_entropy()
+        return self.entropy
+
+    def xpect(self, second_class):
+        if not self.entropy:
+            self.calculate_entropy()
+        if not second_class.entropy:
+            second_class.calculate_entropy()
+        total_n = self.n + second_class.n
+        return (self.entropy*self.n/total_n) + (second_class.entropy*second_class.n/total_n)
 
 class Tbl:
     "Table class for driving the tables comprising of Rows and Cols"
