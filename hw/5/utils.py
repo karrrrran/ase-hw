@@ -19,8 +19,7 @@ def same(num):
 def ordered(num_list, key, index):
     "Sort elements in array at the same time ignore 'Skip' characters"
     return sorted(num_list, key = lambda x: x[index])
-    # return sorted([num_list[x] for x in range(len(num_list)) if SYMBOLS.skip not in key(x)])
-
+    
 class DIVISION_UTILS:
     trivial = 1.025
     cohen = 0.3

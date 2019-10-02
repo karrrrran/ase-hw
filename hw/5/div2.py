@@ -15,7 +15,6 @@ class Div2:
         self.column_name_fn = column_name_fn    #Part of the reason to use this is to check the column name in order to skip the column
         self.key_fn = key_fn    
         self.num_list = ordered(num_list, key = column_name_fn, index = column_x)
-        # self.num_list = num_list
         self.b4 = [class_type(column_name_fn(idx),idx) for idx,class_type in enumerate(self.column_types)]
         for row in self.num_list:
             for idx, val in enumerate(row):
