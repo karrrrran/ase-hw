@@ -2,7 +2,7 @@ from sys import path
 import os
 from math import log
 path.append(os.path.abspath("..") + "\\3")
-from hw3 import SYMBOLS
+from hw3 import Num,SYMBOLS
 
 def last(arr):
     "Returns last element from given list"
@@ -16,9 +16,10 @@ def same(num):
     "Right now returns same number"
     return num
 
-def ordered(num_list, key):
+def ordered(num_list, key, index):
     "Sort elements in array at the same time ignore 'Skip' characters"
-    return [num_list[x] for x in range(len(num_list)) if SYMBOLS.skip not in key(x)]
+    return sorted(num_list, key = lambda x: x[index])
+    # return sorted([num_list[x] for x in range(len(num_list)) if SYMBOLS.skip not in key(x)])
 
 class DIVISION_UTILS:
     trivial = 1.025

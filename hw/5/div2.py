@@ -14,7 +14,8 @@ class Div2:
         self.column_types = column_types
         self.column_name_fn = column_name_fn    #Part of the reason to use this is to check the column name in order to skip the column
         self.key_fn = key_fn    
-        self.num_list = [ordered(row, key = column_name_fn) for row in num_list]
+        self.num_list = ordered(num_list, key = column_name_fn, index = column_x)
+        # self.num_list = num_list
         self.b4 = [class_type(column_name_fn(idx),idx) for idx,class_type in enumerate(self.column_types)]
         for row in self.num_list:
             for idx, val in enumerate(row):
@@ -137,8 +138,8 @@ def y():
 if __name__ == "__main__":
 
     num_list = xnum()
-    num_list = xsym()
-    column_types = [Num,Sym]
+    # num_list = xsym()
+    column_types = [Num,Num]
     div2 = Div2(num_list,0,1,column_types,column_name_fn)
     for idx,obj in enumerate(div2.ranges):
         if isinstance(obj[1],Num):
