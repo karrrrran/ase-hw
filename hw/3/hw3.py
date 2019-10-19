@@ -241,8 +241,9 @@ class Sym(Col):
         "Calculate Entropy"
         entropy = 0
         for key,value in self.counts_map.items():
-            probability = float(value/self.n)
-            entropy -= probability*log2(probability)
+            if value != 0:
+                probability = float(value/self.n)
+                entropy -= probability*log2(probability)
         self.entropy = entropy
 
     def sym_like(self, x, prior, m = 2):
