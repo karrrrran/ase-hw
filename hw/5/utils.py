@@ -24,3 +24,4 @@ class DIVISION_UTILS:
     trivial = 1.025
     cohen = 0.3
     minimum = 0.5
+    minObs = 4
