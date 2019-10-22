@@ -10,13 +10,13 @@ r= random.random
 seed=random.seed
 
 
-def tree_result(low, high, n, text, kids)
+def tree_result(low, high, n, text, kids):
     return {
-        "low" : low
-        "high" : high
-        "n" : n
-        "text" :text
-        "kids": kids
+        "low" : low,
+        "high" : high,
+        "n" : n,
+        "text" : text,
+        "kids": kids,
     }
 
 class Tbl:
@@ -81,45 +81,50 @@ class Tbl:
 
     def tree(self):
         class_index = self.col_info["goals"][0]
-        class_type = Sym if column_index in self.col_info["syms"] else Num
-        self.tree_result = self.get_tree(self,self.rows, class_index,class_type, 0)
+        class_type = Sym if class_index in self.col_info["syms"] else Num
+        func1 = lambda row: row.cells
+        data = list(map(func1, self.rows))
+        for row in data:
+            if row[class_index] == "tested_positive":
+                row[class_index] = 'p'
+            else:
+                row[class_index] = 'n'
+        self.tree_result = self.get_tree(data, class_index,class_type, 0)
     
 
     def get_tree(self, data_rows, class_index, class_type, level):
         if len(data_rows) >= DIVISION_UTILS.minObs:
             #Find the best column to split
-            variety, cut, column = 10**32, None, None
+            overall_gain, cut, column = 10**32, None, None
+            column_types = []
+            for col in self.cols:
+                if isinstance(col,Num):
+                    column_types.append(Num)
+                else:
+                    column_types.append(Sym)
             for col in self.cols:
                 if col.position == class_index:
                     continue
-                cut1, variety1 = self.get_split(data_rows, col.position, class_index, class_type)
+                cut1, this_gain = self.get_split(data_rows, col.position, class_index, class_type, column_types)
                 if cut1:
-                    if variety1 < variety:
-                        variety, cut, column = variety1, cut1, col
+                    if this_gain > overall_gain:
+                        overall_gain, cut, column = this_gain, cut1, col
             #If found a suitable cut
             if cut:
                 #Split data on best column and call tree for both halves.
-                func = lambda row: row.cells[column.position]
-                return [tree_result(low, high, len(kids), column.txt, self.get_tree(kids, class_index, class_type, level + 1)) \ 
-                for low,high, kids in self.split(data_rows, func, cut)]                
+                func = lambda row: row.cells
+                return [tree_result(low, high, len(kids), column.txt, self.get_tree(kids, class_index, class_type, level + 1)) for low,high, kids in self.split(data_rows, column.position, class_index, column_types)]                
 
 
-    def get_split(self, data_rows, col_index, class_index, class_type):
-        func1 = lambda row: row.cells[col_index]
-        column_types = []
-        if isinstance(self.cols[col_index], Num):
-            column_types.append(Num)
-        else:
-            column_types.append(Sym)
-        column_types.append(class_type)
-        data = list(map(func1, data_rows))
-        divide_col = Div2(data, 0, 1, column_types,column_name_fn, recursive = False)       #implement column_name_fn if needed
-        return divide_col.cut, divide_col.best
+    def get_split(self, data, col_index, class_index, class_type, column_types):
+        divide_col = Div2(data, col_index, class_index, column_types, column_name_fn, recursive = False)       #implement column_name_fn if needed
+        return divide_col.cut, divide_col.gain
 
 
-    def split(self, data_rows, this_index_func, cut_index):
-        return [(-float("inf"), this_index_func(data_rows[cut_index]), kids = data_rows[:cut_index]),\
-        (this_index_func(data_rows[cut_index]), float("inf"), kids = data_rows[cut_index:])]
+    def split(self, data, col_index, class_index, column_types):
+        divide_col = Div2(data, col_index, class_index, column_types, column_name_fn, recursive = True)       #implement column_name_fn if needed
+        return [(each[col_index].lo, each[col_index].hi, each) for each in divide_col.ranges]
+
 
 if __name__ == "__main__":
     
@@ -131,5 +136,6 @@ if __name__ == "__main__":
             table.addCol(row)
         else:
             table.addRow(row)
-    table.dump()
+    # table.dump()
     table.tree()
+    print (table.tree_result)
