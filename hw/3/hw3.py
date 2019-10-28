@@ -189,6 +189,22 @@ class Num(Col):
         total_n = self.n + second_class.n
         return (self.sd*self.n/total_n) + (second_class.sd*second_class.n/total_n)
 
+    def dist(self, val1,val2):
+        "Calculate distance between 2 rows"
+        norm = lambda z: (z - self.lo) / (self.hi - self.lo + 10**-32)
+        if val1 == SYMBOLS.skip:
+            if val2 == SYMBOLS.skip: return 1
+            val2 = norm(val2)
+            val1 = 0 if val2 > 0.5 else 1
+        else:
+            val1 = norm(val1)
+            if val2 == SYMBOLS.skip:
+                val2 = 0 if val1 > 0.5 else 1
+            else:
+                val2 = norm(val2)
+        return abs(val1-val2)
+
+
 class Sym(Col):
     "Sym class as a subclass of Col"
 
@@ -271,6 +287,12 @@ class Sym(Col):
             second_class.calculate_entropy()
         total_n = self.n + second_class.n
         return (self.entropy*self.n/total_n) + (second_class.entropy*second_class.n/total_n)
+    
+    def dist(self, val1,val2):
+        "Calculate distance between 2 rows"
+        if val1 == SYMBOLS.skip and val2 == SYMBOLS.skip: return 1
+        if x != y: return 1 
+        return 0
 
 class Tbl:
     "Table class for driving the tables comprising of Rows and Cols"
