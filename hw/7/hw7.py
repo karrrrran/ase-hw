@@ -27,28 +27,29 @@ class RPTree:
 
 def print_tree(root):
     if not root.isRoot:
-        for _ in range(level):
-            print ("|. ")
+        for _ in range(root.level):
+            print ("|. ", end =" ")
     print (root.splitCount)
     if len(root.children) == 0:
         for _ in range(root.level-1):
-            print ("|. ")
+            print ("|. ", end =" ")
         for col in root.leaves:
-            print (col.column_name + " = ")
+            print (col.column_name + " = ", end =" ")
             if (isinstance(col, Num)):
-                print ("{0} ({1})".format(col.mu, col.sd))
+                print ("{0} ({1})".format(col.mu, col.sd), end =" ")
             else:
-                print ("{0} ({1})".format(col.mode, col.entropy))
+                print ("{0} ({1})".format(col.mode, col.entropy), end =" ")
+        print ("")
     else:
         for each in root.children:
             print_tree(each)
     if root.isRoot:
         for col in root.leaves:
-            print (col.column_name + " = ")
+            print (col.column_name + " = ", end =" ")
             if (isinstance(col, Num)):
-                print ("{0} ({1})".format(col.mu, col.sd))
+                print ("{0} ({1})".format(col.mu, col.sd), end =" ")
             else:
-                print ("{0} ({1})".format(col.mode, col.entropy))
+                print ("{0} ({1})".format(col.mode, col.entropy), end =" ")
 
 class Hw7:
     def __init__(self, file_name):
@@ -57,7 +58,7 @@ class Hw7:
         self.tbl = Tbl()
         self.parse_file_contents()
         self.tree = self.split(self.tbl,0)
-        print_tree(tree)
+        print_tree(self.tree)
 
     def parse_file_contents(self):
         for idx, row in enumerate(self.file_contents):
@@ -68,7 +69,7 @@ class Hw7:
     
     def split(self, tbl,level):
         node = RPTree()
-        if (len(tbl.rows) < 2* pow(len(tbl.rows),1/2)):
+        if (len(tbl.rows) < 2* pow(len(self.tbl.rows),1/2)):
             for each in tbl.col_info['goals']:
                 node.leaves.append(tbl.cols[each])
             node.level = level
@@ -76,7 +77,6 @@ class Hw7:
             return node
         else:
             best_tuple, best_points = self.best_pivot_points(tbl)
-            print (best_tuple)
             left_tbl = Tbl()
             right_tbl = Tbl()
             left_tbl.addCol([col.column_name for col in tbl.cols])
@@ -108,7 +108,8 @@ class Hw7:
             second_pivot_pts.append((row, dist))
         second_pivot_pts.sort(key = lambda x: x[1])
         second_pivot_idx = second_pivot_pts[math.floor(len(second_pivot_pts)*0.9)][0]
-        return (first_pivot_idx, second_pivot_idx, second_pivot_pts[second_pivot_idx][1])
+        dist = second_pivot_pts[math.floor(len(second_pivot_pts)*0.9)][1]
+        return (first_pivot_idx, second_pivot_idx, dist)
     
     def best_pivot_points(self,tbl):
         counter = 10
@@ -148,10 +149,6 @@ class Hw7:
         
         return best_tuple, best_points
 
-
-
-
-
 if __name__ == '__main__':
-    hw7 = Hw7('pom310000.csv')
-    # hw7('xomo10000.csv')
+    # hw7 = Hw7('pom310000.csv')
+    hw7 = Hw7('xomo10000.csv')
