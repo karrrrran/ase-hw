@@ -14,10 +14,7 @@ def distance(row1, row2, cols):
     return d**(1/p) / n**(1/p)      #normalize distance    
 
 def cosine (x, y, z, dist, cols):
-    try:
-        return (distance(x, z, cols)**2 + dist**2 - distance(y, z, cols)**2)/(2*dist)
-    except ZeroDivisionError:
-        return 0
+    return (distance(x, z, cols)**2 + dist**2 - distance(y, z, cols)**2)/(2*dist)
 
 
 class RPTree:
