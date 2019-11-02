@@ -19,6 +19,16 @@ def tree_result(low, high, n, text, kids):
         "kids": kids,
     }
 
+def leaf_result(classval, rows):
+    if classval == 'p':
+        classval = 'tested_positive'
+    if classval == 'n':
+        classval = 'tested_negative'
+    return {
+        'val' : classval,
+        'n' : rows
+    }
+
 class Tbl:
     "Table class for driving the tables comprising of Rows and Cols"
     def __init__(self):
@@ -95,7 +105,7 @@ class Tbl:
     def get_tree(self, data_rows, class_index, class_type, level):
         if len(data_rows) >= DIVISION_UTILS.minObs:
             #Find the best column to split
-            overall_gain, cut, column = 10**32, None, None
+            low, cut, column = 10**32, None, None
             column_types = []
             for col in self.cols:
                 if isinstance(col,Num):
@@ -105,37 +115,49 @@ class Tbl:
             for col in self.cols:
                 if col.position == class_index:
                     continue
-                cut1, this_gain = self.get_split(data_rows, col.position, class_index, class_type, column_types)
-                if cut1:
-                    if this_gain > overall_gain:
-                        overall_gain, cut, column = this_gain, cut1, col
+                x = Div2(data_rows, col.position, class_index, column_types, column_name_fn)
+                cut1, low1 = x.cut, x.best
+                if cut1 and low1:
+                    if low1 < low:
+                        cut, low, column = cut1, low1, col
             #If found a suitable cut
             if cut:
                 #Split data on best column and call tree for both halves.
                 func = lambda row: row.cells
-                return [tree_result(low, high, len(kids), column.txt, self.get_tree(kids, class_index, class_type, level + 1)) for low,high, kids in self.split(data_rows, column.position, class_index, column_types)]                
+                return [tree_result(low, high, len(kids), column.column_name, self.get_tree(kids, class_index, class_type, level + 1)) for low,high, kids in self.split(data_rows, cut, column)]                        
+        return leaf_result(data_rows[len(data_rows)//2][class_index], len(data_rows))
 
 
-    def get_split(self, data, col_index, class_index, class_type, column_types):
-        divide_col = Div2(data, col_index, class_index, column_types, column_name_fn, recursive = False)       #implement column_name_fn if needed
-        return divide_col.cut, divide_col.gain
+    def split(self, data_rows, cut, column):
+        left_half,low = data_rows[:cut],data_rows[cut][column.position]
+        right_half,high = data_rows[cut:], data_rows[cut+1][column.position]
+        return [(-float('inf'), low, left_half),(high, float('inf'), right_half)]
 
 
-    def split(self, data, col_index, class_index, column_types):
-        divide_col = Div2(data, col_index, class_index, column_types, column_name_fn, recursive = True)       #implement column_name_fn if needed
-        return [(each[col_index].lo, each[col_index].hi, each) for each in divide_col.ranges]
-
+def pretty_print(tree, level = 0):
+    for _ in range(level):
+            print ("| ", end = " ")
+    print ("{0} = {1}...{2}".format(tree['text'], tree['low'], tree['high']), end = " ")
+    if not isinstance(tree['kids'], list):
+        print ("{0} ({1})".format(tree['kids']['val'],tree['kids']['n']))
+    else:
+        for each in tree['kids']:
+            print ("")
+            pretty_print(each, level + 1)
+            
 
 if __name__ == "__main__":
     
-    file_name = "../4/diabetes.csv"
+    # file_name = "../4/diabetes.csv"
+    file_name = "auto.csv"
     file_contents = cells(cols(rows(file(file_name))))
     table = Tbl()
     for idx, row in enumerate(file_contents):
         if idx == 0:
             table.addCol(row)
         else:
+            print (row)
             table.addRow(row)
-    # table.dump()
     table.tree()
-    print (table.tree_result)
+    for each in table.tree_result:
+        pretty_print(each)
