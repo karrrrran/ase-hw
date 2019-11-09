@@ -115,7 +115,17 @@ class Row(MyID):
         self.cells = cells
         self.cooked = cooked
         self.dom = dom
-
+    
+    def dominates(self, j, goals):
+        z = 0.00001
+        s1, s2, n = z, z, z+len(goals)
+        for goal in goals:
+            if isinstance(goal, Num):
+                a,b = self.cells[goal.position], j.cells[goal.position]
+                a,b = goal.norm(a), goal.norm(b)
+                s1 -= 10**(goal.weight * (a-b)/n)
+                s2 -= 10**(goal.weight * (b-a)/n)
+        return (s1/n - s2/n)
 
 class Col(MyID):
     "Col class for each column in data"
@@ -188,6 +198,9 @@ class Num(Col):
     def xpect(self, second_class):
         total_n = self.n + second_class.n
         return (self.sd*self.n/total_n) + (second_class.sd*second_class.n/total_n)
+
+    def norm(self, val):
+        return (val - self.lo) / (self.hi - self.lo + 10**-32)
 
     def dist(self, val1,val2):
         "Calculate distance between 2 rows"
