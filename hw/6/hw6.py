@@ -94,11 +94,11 @@ class Tbl:
         class_type = Sym if class_index in self.col_info["syms"] else Num
         func1 = lambda row: row.cells
         data = list(map(func1, self.rows))
-        for row in data:
-            if row[class_index] == "tested_positive":
-                row[class_index] = 'p'
-            else:
-                row[class_index] = 'n'
+        # for row in data:
+        #     if row[class_index] == "tested_positive":
+        #         row[class_index] = 'p'
+        #     else:
+        #         row[class_index] = 'n'
         self.tree_result = self.get_tree(data, class_index,class_type, 0)
     
 
@@ -156,7 +156,6 @@ if __name__ == "__main__":
         if idx == 0:
             table.addCol(row)
         else:
-            print (row)
             table.addRow(row)
     table.tree()
     for each in table.tree_result:
