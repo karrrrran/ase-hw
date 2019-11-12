@@ -4,10 +4,13 @@ import json, jsonpickle, random, re, os
 path.append(os.path.abspath("..") + "\\3")
 path.append(os.path.abspath("..") + "\\5")
 path.append(os.path.abspath("..") + "\\6")
+path.append(os.path.abspath("..") + "\\7")
 from hw3 import Row, Col, Num, Sym, cells, cols, rows, file, fromString
 from utils import same, first, last, ordered, DIVISION_UTILS
 from div2 import Div2, column_name_fn
 from hw6 import Tbl
+from collections import defaultdict
+from hw7 import Hw7
 r= random.randint
 seed=random.seed
 
@@ -64,6 +67,54 @@ class TestAuto:
         values.sort(key = lambda x: x[0])
         return values
 
+# defined exclusively for leaf nodes coming from HW7
+def dominates(c1, c2, goals):
+    z = 0.00001
+    s1, s2, n = z,z,z+len(goals)
+    for idx, goal in enumerate(goals):
+        if isinstance(goal, Num):
+            a,b = c1.leaves[idx].mu, c2.leaves[idx].mu
+            a,b = goal.norm(a), goal.norm(b)
+            s1 -= 10**(goal.weight * (a-b)/n)
+            s2 -= 10**(goal.weight * (b-a)/n)
+    return (s1/n - s2/n)
+
+# defined exclusively for leaf nodes coming from HW7
+def distance(col1, col2, goals):
+    d, n, p = 0, 0, 2
+    for idx, col in enumerate(goals):
+        n += 1
+        d0 = None
+        if isinstance(col, Num):
+            d0 = col.dist(col1.leaves[idx].mu, col2.leaves[idx].mu)
+        else:
+            d0 = col.dist(col1.leaves[idx].mode, col2.leaves[idx].mode)
+        d += d0**p
+    return d**(1/p) / n**(1/p)      #normalize distance    
+
+def envy_sets_step4_5():
+    rp_obj = Hw7('auto.csv')
+    centroids = rp_obj.leaf_nodes
+    envy_nodes_map = defaultdict(list)
+    closest_envy_nodes = []
+    goals = [rp_obj.tbl.cols[each] for each in rp_obj.tbl.col_info['goals']]
+    for c1 in centroids:
+        for c2 in centroids:
+            if dominates(c1, c2, goals) > 0:
+                envy_nodes_map[c1].append(c2)
+
+    for c1 in envy_nodes_map.keys():
+        min_dist, most_envy = float('inf'), None
+        for c2 in envy_nodes_map[c1]:
+            dist = distance(c1,c2,goals)
+            if dist < min_dist:
+                min_dist = dist
+                most_envy = c2 
+        closest_envy_nodes.append((c1, most_envy))
+
+    print (len(closest_envy_nodes))
+
 if __name__ == "__main__":
-    t = TestAuto('auto.csv') 
-    t.print_sorted_values()
+    # t = TestAuto('auto.csv') 
+    # t.print_sorted_values()
+    envy_sets_step4_5()
