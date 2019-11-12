@@ -8,7 +8,7 @@ path.append(os.path.abspath("..") + "\\7")
 from hw3 import Row, Col, Num, Sym, cells, cols, rows, file, fromString
 from utils import same, first, last, ordered, DIVISION_UTILS
 from div2 import Div2, column_name_fn
-from hw6 import Tbl
+from hw6 import Tbl, pretty_print2
 from collections import defaultdict
 from hw7 import Hw7
 r= random.randint
@@ -112,7 +112,28 @@ def envy_sets_step4_5():
                 most_envy = c2 
         closest_envy_nodes.append((c1, most_envy))
 
-    print (len(closest_envy_nodes))
+    for idx,val in enumerate(closest_envy_nodes):
+        new_tbl = Tbl()
+        cols = [col.column_name for col in val[0].tbl.cols]
+        cols.append('!$new_class')
+        new_tbl.addCol(cols)
+        for each in val[0].tbl.rows:
+            cells = each.cells
+            cells.append(0)
+            new_tbl.addRow(cells)
+        
+        for each in val[1].tbl.rows:
+            cells = each.cells
+            cells.append(1)
+            new_tbl.addRow(cells)
+        try:
+            new_tbl.tree()
+            print ("TREE FOR CLUSTER {0} and its ENVY CLUSTER".format(idx+1))
+            pretty_print2(new_tbl.tree_result)
+            print ("-----------------------------------------------------------")
+        except:
+            pass
+
 
 if __name__ == "__main__":
     # t = TestAuto('auto.csv') 

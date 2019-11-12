@@ -145,6 +145,22 @@ def pretty_print(tree, level = 0):
             print ("")
             pretty_print(each, level + 1)
             
+def pretty_print2(tree, level = 0):
+    if isinstance(tree, list):
+        for each in tree:
+            pretty_print2(each, level)
+    else:
+        for _ in range(level):
+            print ("| ", end = " ")
+        print ("{0} = {1}...{2}".format(tree['text'], tree['low'], tree['high']), end = " ")        
+        if not isinstance(tree['kids'], list):
+            print ("{0} ({1})".format(tree['kids']['val'],tree['kids']['n']))
+        else:
+            for each in tree['kids']:
+                print ("")
+                pretty_print2(each, level + 1)
+            
+
 
 if __name__ == "__main__":
     
@@ -158,5 +174,6 @@ if __name__ == "__main__":
         else:
             table.addRow(row)
     table.tree()
-    for each in table.tree_result:
-        pretty_print(each)
+    pretty_print2(table.tree_result)
+    # for each in table.tree_result:
+    #     pretty_print(each)

@@ -2,7 +2,9 @@ from sys import path
 import os, random, math
 from collections import defaultdict
 path.append(os.path.abspath("..") + "\\3")
-from hw3 import Num, Sym,Col, Tbl, cells, cols, rows, file
+path.append(os.path.abspath("..") + "\\6")
+from hw3 import Num, Sym,Col, cells, cols, rows, file
+from hw6 import Tbl
 seed=random.seed
 
 def distance(row1, row2, cols):
@@ -21,7 +23,7 @@ class RPTree:
     def __init__(self):
         self.children = []
         self.leaves = []
-        self.rows = []
+        self.tbl = None
         self.level = 0
         self.isRoot = False
         self.splitCount = 0
@@ -60,8 +62,7 @@ class Hw7:
         self.tbl = Tbl()
         self.parse_file_contents()
         self.tree = self.split(self.tbl,0)
-        print_tree(self.tree)
-
+        
     def parse_file_contents(self):
         for idx, row in enumerate(self.file_contents):
             if idx == 0:
@@ -75,7 +76,7 @@ class Hw7:
             for each in tbl.col_info['goals']:
                 node.leaves.append(tbl.cols[each])
             node.level = level
-            node.rows = tbl.rows
+            node.tbl = tbl
             node.splitCount = len(tbl.rows)
             self.leaf_nodes.append(node)
             return node
@@ -156,3 +157,4 @@ class Hw7:
 if __name__ == '__main__':
     # hw7 = Hw7('pom310000.csv')
     hw7 = Hw7('xomo10000.csv')
+    print_tree(hw7.tree)
