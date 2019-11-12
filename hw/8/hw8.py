@@ -128,7 +128,7 @@ def envy_sets_step4_5():
             new_tbl.addRow(cells)
         try:
             new_tbl.tree()
-            print ("TREE FOR CLUSTER {0} and its ENVY CLUSTER".format(idx+1))
+            print ("TREE FOR ONE OF THE CLUSTERS and its ENVY CLUSTER")
             pretty_print2(new_tbl.tree_result)
             print ("-----------------------------------------------------------")
         except:
