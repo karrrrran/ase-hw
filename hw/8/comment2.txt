@@ -1,0 +1,12 @@
+In the section 2.1 and 2.2 of the paper, "Learning GENERAL Principles from Hundreds of Software Projects", Suvodeep Majumder contrasts global and local reasoning. 
+
+The key points for which he favours generality are:
+	- Generality itself. It helps make general conclusions over number of software projects. 
+	- Trust, so that assumptions can stand range of time. 
+	- Insight, to gain actionable insights to help practitioners. 
+	- Training, to train novice software engineers in standard manner. 
+	- To develop and develop efficient tools. 
+	
+In the next section of the paper, he has put counter argument to above points. He mentions that for practical Software Engineering problems, context matters a lot and that one model will not cover all projects and tools. It is better to develop models for 'communities' of softwares. 
+
+Mostly, I go alongwith thoughts of Suvodeep. I think advantages of generalization outweighs local reasoning. To think naively, if we develop a model to predict something about software engineering project, then I expect it to work on wide set of projects. Not just the ones on which I trained it. Also, a lot of softwares in the industy are legacy, the code is decades old in there. By going global reasoning, we can also make sure that our model remains relevant for decades to come. Doing this, if the generalization can help novice programmers learn faster, that's icing on the cake. By the same logic, if we try to apply the local reasoning done in the auto.csv dataset to a different dataset, let's say auto.csv of an another country, it may fail to generalize well. Whereas I expect it to work well on all similar datasets. Nevertheless, the one area where the global reasoning might not work well is when where out dataset has some 'context' information associated.  
