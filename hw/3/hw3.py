@@ -304,7 +304,7 @@ class Sym(Col):
     def dist(self, val1,val2):
         "Calculate distance between 2 rows"
         if val1 == SYMBOLS.skip and val2 == SYMBOLS.skip: return 1
-        if x != y: return 1 
+        if val1 != val2: return 1 
         return 0
 
 class Tbl:

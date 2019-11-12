@@ -21,6 +21,7 @@ class RPTree:
     def __init__(self):
         self.children = []
         self.leaves = []
+        self.rows = []
         self.level = 0
         self.isRoot = False
         self.splitCount = 0
@@ -54,6 +55,7 @@ def print_tree(root):
 class Hw7:
     def __init__(self, file_name):
         seed(1)
+        self.leaf_nodes = []
         self.file_contents = cells(cols(rows(file(file_name))))
         self.tbl = Tbl()
         self.parse_file_contents()
@@ -73,7 +75,9 @@ class Hw7:
             for each in tbl.col_info['goals']:
                 node.leaves.append(tbl.cols[each])
             node.level = level
+            node.rows = tbl.rows
             node.splitCount = len(tbl.rows)
+            self.leaf_nodes.append(node)
             return node
         else:
             best_tuple, best_points = self.best_pivot_points(tbl)
