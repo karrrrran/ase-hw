@@ -1,0 +1,5 @@
+Yes, the trees generated in the homework are considered 'good'. There are two reasons that we could think:
+- They don't go to extreme depth
+- Major cuts allow significant pruning
+
+As the trees aren't complex, it corelates to the statement that "Good knowledge is succinct knowledge".
